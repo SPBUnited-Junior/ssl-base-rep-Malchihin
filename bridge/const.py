@@ -15,11 +15,11 @@ class Color(Enum):
 
 ##################################################
 # GAME SETTING CONSTS
-DIV = "C"
-COLOR = Color.YELLOW
+DIV = "B"
+COLOR = Color.BLUE
 POLARITY = 1  # -1 если ворота синих на +x; 1 если ворота синих на -x
 
-IS_SIMULATOR_USED = False
+IS_SIMULATOR_USED = True #Grsim
 IS_DRIBBLER_USED = True  # dribbler and upper_kick
 SELF_PLAY = False
 
@@ -88,7 +88,7 @@ IMAGE_TOPIC = "image-topic"
 
 ##################################################
 # CONTROL CONSTS
-Ts = 0.02  # s
+Ts = 0.04  # s
 
 # ROBOT SETTING CONSTS
 MAX_SPEED = 1250
@@ -106,7 +106,7 @@ GRAVEYARD_POS_X = -10000
 
 BALL_MAX_SPEED = 10000  # for filter random balls
 
-GOAL_DX = 4500
+GOAL_DX = 4000
 GOAL_DY = 1000
 GOAL_PEN_DX = 1000
 GOAL_PEN_DY = 2000
@@ -114,7 +114,7 @@ GOAL_PEN_DY = 2000
 GK_FORW = 200 + ROBOT_R
 if DIV == "C":
     GOAL_DX = 2250
-    GOAL_DY = 800
+    GOAL_DY = 1000
     GOAL_PEN_DX = 500
     GOAL_PEN_DY = 1350
 

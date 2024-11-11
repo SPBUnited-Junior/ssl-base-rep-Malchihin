@@ -73,8 +73,8 @@ class Router:
 
         if abs(target.pos.x) > const.GOAL_DX:
             target.pos.x = const.GOAL_DX * aux.sign(target.pos.x)
-        if abs(target.pos.y) > 1500:
-            target.pos.y = 1500 * aux.sign(target.pos.y)
+        if abs(target.pos.y) > 3000:
+            target.pos.y = 3000 * aux.sign(target.pos.y)
         self.routes[idx].set_dest_wp(target)
 
     def reroute(self, field: fld.Field) -> None:
