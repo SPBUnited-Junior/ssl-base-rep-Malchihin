@@ -25,9 +25,15 @@ class Strategy:
         self.idx1 = 1
         self.idx2 = 2
         # Индексы роботов соперника
+<<<<<<< HEAD
         self.gk_idx_ali = 0
-        self.idx_ali1 = 1
+        self.idx_ali1 = 3
         self.idx_ali2 = 2
+=======
+        self.gk_idx_ali = 11
+        self.idx_ali1 = 3
+        self.idx_ali2 = 8
+>>>>>>> refs/remotes/origin/main
 
     def change_game_state(self, new_state: GameStates, upd_active_team: ActiveTeam) -> None:
         """Изменение состояния игры и цвета команды"""
@@ -69,69 +75,78 @@ class Strategy:
         robot_pos2 = field.allies[self.idx2].get_pos()
 
         ##########################coordinates_ali##########################
-        robot_pos_gk_enem = field.enemies[self.gk_idx_ali].get_pos()
-        robot_pos1_enem = field.enemies[self.idx_ali1].get_pos()
-        robot_pos2_enem = field.enemies[self.idx_ali2].get_pos()
+<<<<<<< HEAD
+        robot_pos_gk_en = field.enemies[self.gk_idx_ali].get_pos()
+        robot_pos1_en = field.enemies[self.idx_ali1].get_pos()
+        robot_pos2_en = field.enemies[self.idx_ali2].get_pos()
+=======
+        robot_pos_gk_ali = field.allies[self.gk_idx_ali].get_pos()
+        robot_pos1_ali = field.allies[self.idx_ali1].get_pos()
+        robot_pos2_ali = field.allies[self.idx_ali2].get_pos()
+>>>>>>> refs/remotes/origin/main
 
         ##########################ball##########################
         ball = field.ball.get_pos()
 
         ##########################attacker##########################
+<<<<<<< HEAD
         g_up_xy = field.enemy_goal.up + field.enemy_goal.eye_up * 50
         g_down_xy = field.enemy_goal.down - field.enemy_goal.eye_up * 50
-        up = (g_up_xy - robot_pos_gk_enem).mag()
-        down = (g_down_xy - robot_pos_gk_enem).mag()
+        up = (g_up_xy - robot_pos_gk_en).mag()
+        down = (g_down_xy - robot_pos_gk_en).mag()
 
-        mag1 = (robot_pos_gk - robot_pos1_enem).mag()
-        mag2 = (robot_pos_gk - robot_pos2_enem).mag()
+        mag1 = (robot_pos_gk - robot_pos1_en).mag()
+        mag2 = (robot_pos_gk - robot_pos2_en).mag()
+
+        if mag1 > mag2:
+            mag = robot_pos2_en
+        else:
+            mag = robot_pos1_en 
+            
+        field.strategy_image.draw_line(mag, robot_pos_gk_en, (255, 0, 0), 5)
+        field.strategy_image.draw_line(robot_pos1,robot_pos2,(255,0,0), 5)
+
+        vec_rob = ((robot_pos_gk_en + mag) / 2) - robot_pos1
 
         if up > down:
             pos = g_up_xy
         else:
             pos = g_down_xy
-        
-        if mag1 < mag2:
-            #print(robot_pos2_enem.x, robot_pos_gk_enem.x)
-            if robot_pos2_enem.x > robot_pos_gk_enem.x:
-                angl_atacker = pos
-                field.strategy_image.draw_line(robot_pos1, pos, (255, 0, 0), 5)
-               # print(2)
-            else:
-                mag = robot_pos2_enem
-                vec_rob = ((robot_pos_gk_enem + robot_pos2_enem) / 2) - robot_pos1
-                angl_atacker = (pos - vec_rob) - robot_pos1
-                field.strategy_image.draw_line(robot_pos2_enem, robot_pos_gk_enem, (255, 0, 0), 5)
-               # print(1)
+
+=======
+        g_up_xy = field.ally_goal.up + field.ally_goal.eye_up * 50
+        g_down_xy = field.ally_goal.down - field.ally_goal.eye_up * 50
+        up = (g_up_xy - robot_pos_gk).mag()
+        down = (g_down_xy - robot_pos_gk).mag()
+
+        vec_rob = ((robot_pos_gk + robot_pos2) / 2) - robot_pos1
+
+        if up > down:
+            pos = g_up_xy
         else:
-            #print("Heelo NOO")
-            if robot_pos1_enem.x > robot_pos_gk_enem.x:
-                angl_atacker = pos
-                field.strategy_image.draw_line(robot_pos1, pos, (255, 0, 0), 5)
-                #print(2)
-            else:
-                mag = robot_pos1_enem
-                vec_rob = ((robot_pos_gk_enem + robot_pos1_enem) / 2) - robot_pos1
-                angl_atacker = (pos - vec_rob) - robot_pos1
-                field.strategy_image.draw_line(robot_pos1_enem, robot_pos_gk_enem, (255, 0, 0), 5)
-                #print(1)
+            pos = g_down_xy
 
-        #field.strategy_image.draw_line(robot_pos1,robot_pos2,(255,0,0), 5)
-
-        #vec_rob = ((robot_pos_gk_ali + mag) / 2) - robot_pos1
-#
-        #angl_atacker = (pos - vec_rob) - robot_pos1
+>>>>>>> refs/remotes/origin/main
+        angl_atacker = (pos - vec_rob) - robot_pos1
         angl = robot_pos1 - pos
         pos_gool = field.ally_goal.center
 
         # Ensure vec_ball is always defined
         vec_ball = ball - robot_pos1
 
-        #if vec_ball.mag() > 1000:
+<<<<<<< HEAD
+        if vec_ball.mag() > 1000:
+           waypoints[self.idx1] = wp.Waypoint(ball, vec_ball.arg(), wp.WType.S_ENDPOINT)
+        else:
+            waypoints[self.idx1] = wp.Waypoint(ball, angl_atacker.arg(), wp.WType.S_BALL_KICK)
+=======
+        #if vec_ball.mag() > 300:
         #    waypoints[self.idx1] = wp.Waypoint(ball, vec_ball.arg(), wp.WType.S_ENDPOINT)
         #else:
-        waypoints[self.idx1] = wp.Waypoint(ball, angl_atacker.arg(), wp.WType.S_BALL_KICK)
-        angle = field.allies[self.idx1].get_angle()
-        print(angle)        # Pas
+        waypoints[self.idx1] = wp.Waypoint(ball, (angl_atacker).arg(), wp.WType.S_BALL_KICK)
+>>>>>>> refs/remotes/origin/main
+
+        # Pas
         # if self.is_ball_moves_to_point(robot_pos1, field.ball):
         #    waypoints[self.idx1] = wp.Waypoint(robot_pos1, (vec_ball).arg(), wp.WType.S_ENDPOINT)
         # else:
@@ -139,7 +154,11 @@ class Strategy:
         return waypoints
 
     def protection(self, field: fld.Field, waypoints: list[wp.Waypoint], idx: int) -> None:
+<<<<<<< HEAD
          """##########################coordinates_our##########################
+=======
+        """##########################coordinates_our##########################
+>>>>>>> refs/remotes/origin/main
         robot_pos_gk = field.allies[self.gk_idx].get_pos()
         robot_pos1 = field.allies[self.idx1].get_pos()
         robot_pos2 = field.allies[self.idx2].get_pos()

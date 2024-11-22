@@ -192,3 +192,14 @@ class SSLController(BaseProcessor):
 
         self.control_assign()
         self.draw_image()
+    def draw_image(self) -> None:
+        """Send commands to drawer processor"""
+        full_image = Image()
+        for image in [
+            self.field.strategy_image,
+            # self.field.router_image,
+        ]:  # self.field.path_image
+            if image:
+                    full_image.commands += image.commands
+                    image.commands = []
+            self.image_writer.write(full_image)
