@@ -56,7 +56,6 @@ class Strategy:
                 )
             )
         
-        self.protection(field,waypoints, self.idx2)
         self.attacker(field, waypoints, self.idx1)
         self.goalkeeper(field, waypoints)
 
@@ -77,10 +76,11 @@ class Strategy:
         ball = field.ball.get_pos()
 
         ##########################attacker##########################
-        g_up_xy = field.enemy_goal.up + field.enemy_goal.eye_up * 50
-        g_down_xy = field.enemy_goal.down - field.enemy_goal.eye_up * 50
+        g_up_xy = field.enemy_goal.up - field.enemy_goal.eye_up * 30    #определяется угол ворот противоположный от враторя
+        g_down_xy = field.enemy_goal.down - field.enemy_goal.eye_up * 30
+
         up = (g_up_xy - robot_pos_gk_enem).mag()
-        down = (g_down_xy - robot_pos_gk_enem).mag()
+        down = (g_down_xy + robot_pos_gk_enem).mag()
 
         mag1 = (robot_pos_gk - robot_pos1_enem).mag()
         mag2 = (robot_pos_gk - robot_pos2_enem).mag()
@@ -88,28 +88,28 @@ class Strategy:
         if up > down:
             pos = g_up_xy
         else:
-            pos = g_down_xy
-        
-        if mag1 < mag2:
+            pos = g_down_xy     #закончилось
+    
+        if mag1 < mag2:            #смотрится кто дальше находится от враторя  
             #print(robot_pos2_enem.x, robot_pos_gk_enem.x)
-            if robot_pos2_enem.x > robot_pos_gk_enem.x:
+            if robot_pos2_enem.x > robot_pos_gk_enem.x:         #смотрится на то находится ли робот относительно мяча с право или слева
                 angl_atacker = pos
                 field.strategy_image.draw_line(robot_pos1, pos, (255, 0, 0), 5)
                # print(2)
             else:
-                mag = robot_pos2_enem
+                mag = robot_pos2_enem       #бъёт между роботов в противоположный угол
                 vec_rob = ((robot_pos_gk_enem + robot_pos2_enem) / 2) - robot_pos1
                 angl_atacker = (pos - vec_rob) - robot_pos1
                 field.strategy_image.draw_line(robot_pos2_enem, robot_pos_gk_enem, (255, 0, 0), 5)
                # print(1)
         else:
             #print("Heelo NOO")
-            if robot_pos1_enem.x > robot_pos_gk_enem.x:
+            if robot_pos1_enem.x > robot_pos_gk_enem.x:     #смотрится на то находится ли робот относительно мяча с право или слева 
                 angl_atacker = pos
                 field.strategy_image.draw_line(robot_pos1, pos, (255, 0, 0), 5)
                 #print(2)
             else:
-                mag = robot_pos1_enem
+                mag = robot_pos1_enem       #бъёт между роботов в противоположный угол
                 vec_rob = ((robot_pos_gk_enem + robot_pos1_enem) / 2) - robot_pos1
                 angl_atacker = (pos - vec_rob) - robot_pos1
                 field.strategy_image.draw_line(robot_pos1_enem, robot_pos_gk_enem, (255, 0, 0), 5)
@@ -123,49 +123,43 @@ class Strategy:
         angl = robot_pos1 - pos
         pos_gool = field.ally_goal.center
 
-        # Ensure vec_ball is always defined
         vec_ball = ball - robot_pos1
 
         #if vec_ball.mag() > 1000:
         #    waypoints[self.idx1] = wp.Waypoint(ball, vec_ball.arg(), wp.WType.S_ENDPOINT)
         #else:
-        waypoints[self.idx1] = wp.Waypoint(ball, angl_atacker.arg(), wp.WType.S_BALL_KICK)
+        #waypoints[self.idx1] = wp.Waypoint(ball, angl_atacker.arg(), wp.WType.S_BALL_KICK)
         angle = field.allies[self.idx1].get_angle()
         print(angle)        # Pas
         # if self.is_ball_moves_to_point(robot_pos1, field.ball):
         #    waypoints[self.idx1] = wp.Waypoint(robot_pos1, (vec_ball).arg(), wp.WType.S_ENDPOINT)
         # else:
-        #    waypoints[self.idx1] = wp.Waypoint(robot_pos1, (vec_ball).arg(), wp.WType.S_ENDPOINT)
-        return waypoints
+        #    waypoints[self.idx1] = wp.Waypoint(robot_pos1, (vec_ball).arg(), wp.WType.S_ENDPOINT)l
 
-    def protection(self, field: fld.Field, waypoints: list[wp.Waypoint], idx: int) -> None:
-         """##########################coordinates_our##########################
-        robot_pos_gk = field.allies[self.gk_idx].get_pos()
-        robot_pos1 = field.allies[self.idx1].get_pos()
-        robot_pos2 = field.allies[self.idx2].get_pos()
-
-        ##########################coordinates_ali##########################
-        robot_pos_gk_ali = field.allies[self.gk_idx_ali].get_pos()
-        robot_pos1_ali = field.allies[self.idx_ali1].get_pos()
-        robot_pos2_ali = field.allies[self.idx_ali2].get_pos()
-
-        ##########################ball##########################
-        ball = field.ball.get_pos()
-        
         ##########################protection##########################   
+        #angle_protection = robot_pos1 - robot_pos2         #пас
+        #if ball.y > 0:
+        #    waypoints[self.idx2] = wp.Waypoint(ball, (angle_protection).arg(), wp.WType.S_BALL_KICK)
+        #else:
+        #    waypoints[self.idx2] = wp.Waypoint(angle, (field.enemy_goal.center).arg(), wp.WType.S_BALL_KICK)
+        pos_protection = ball
+        pos_attacker = ball
 
-        ball = field.ball.get_pos()
-        robot_pos1 = field.allies[idx].get_pos()
-        robot_pos2 = field.allies[self.idx2].get_pos()
-
-        angle_protection = robot_pos1 - robot_pos2
-
-        if ball.y > 0:
-            waypoints[self.idx2] = wp.Waypoint(ball, (angle_protection).arg(), wp.WType.S_BALL_KICK)
+        if robot_pos1_enem == ball:
+            ball_robot = robot_pos1_enem
         else:
-            waypoints[self.idx2] = wp.Waypoint(ball, (field.enemy_goal.center).arg(), wp.WType.S_BALL_KICK)
-
-        return waypoints"""
+            ball_robot = ball
+        if robot_pos2_enem == ball:
+            ball_robot = robot_pos2_enem
+            
+        if ball_robot.y > 0:
+            pos_attacker = aux.Point(robot_pos1_enem.x, robot_pos1_enem.y - 100)
+        else:
+            pos_protection = aux.Point(robot_pos1_enem.x - 100, robot_pos1_enem.y)
+        
+        waypoints[self.idx1] = wp.Waypoint(pos_attacker, angl_atacker.arg(), wp.WType.S_BALL_KICK)
+        waypoints[self.idx2] = wp.Waypoint(pos_protection, (ball).arg(), wp.WType.S_ENDPOINT)
+        return waypoints
     def goalkeeper(self, field: fld.Field, waypoints: list[wp.Waypoint]) -> None:
         """##########################coordinates_our##########################
         robot_pos_gk = field.allies[self.gk_idx].get_pos()
