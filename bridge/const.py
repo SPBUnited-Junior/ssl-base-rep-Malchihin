@@ -15,17 +15,16 @@ class Color(Enum):
 
 ##################################################
 # GAME SETTING CONSTS
-DIV = "B"
+DIV = "C"
 COLOR = Color.BLUE
 POLARITY = 1  # -1 если ворота синих на +x; 1 если ворота синих на -x
 
 IS_SIMULATOR_USED = True #Grsim
 IS_DRIBBLER_USED = True  # dribbler and upper_kick
 SELF_PLAY = False
-
-GK = 8
+GK = 0
 PENALTY_KICKER = 0
-ENEMY_GK = 1
+ENEMY_GK = 0
 
 CAMERAS_COUNT: int = 4
 MAX_BALLS_IN_CAMERA: int = 64
@@ -40,22 +39,22 @@ ROBOT_TEAM_PACKET_SIZE: int = SINGLE_ROBOT_PACKET_SIZE * TEAM_ROBOTS_MAX_COUNT
 GEOMETRY_PACKET_SIZE: int = 2
 
 CONTROL_MAPPING: dict[int, int] = {
-    # 0: 8,
-    # 1: 9,
-    # 2: 10,
-    # 3: 11,
-    # 4: 12,
-    # 5: 13,
-    # 6: 14,
-    # 7: 15,
-    # 8: 0,
-    # 9: 1,
-    # 10: 2,
-    # 11: 3,
-    # 12: 4,
-    # 13: 5,
-    # 14: 6,
-    # 15: 7,
+    #0: 8,
+    #1: 9,
+    #2: 10, 
+    #3: 11,
+    #4: 12,
+    #5: 13,
+    #6: 14,
+    #7: 15,
+    #8: 0,
+    #9: 1,
+    #10: 2,
+    #11: 3,
+    #12: 4,
+    #13: 5,
+    #14: 6,
+    #15: 7,
     0: 0,
     1: 1,
     2: 2,
@@ -114,7 +113,7 @@ GOAL_PEN_DY = 2000
 GK_FORW = 200 + ROBOT_R
 if DIV == "C":
     GOAL_DX = 2250
-    GOAL_DY = 1000
+    GOAL_DY = 800
     GOAL_PEN_DX = 500
     GOAL_PEN_DY = 1350
 

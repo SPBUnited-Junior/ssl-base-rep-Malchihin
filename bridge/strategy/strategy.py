@@ -9,6 +9,7 @@ from bridge.auxiliary import aux, fld, rbt
 from bridge.processors.referee_state_processor import Color as ActiveTeam
 from bridge.processors.referee_state_processor import State as GameStates
 
+ball_in_robot = None
 ball_start = None
 
 class Strategy:
@@ -25,9 +26,9 @@ class Strategy:
         self.idx1 = 1
         self.idx2 = 2
         # Индексы роботов соперника
-        self.gk_idx_ali = 0
-        self.idx_ali1 = 1
-        self.idx_ali2 = 2
+        self.gk_idx_enem = 0
+        self.idx_enem1 = 1
+        self.idx_enem2 = 2
 
     def change_game_state(self, new_state: GameStates, upd_active_team: ActiveTeam) -> None:
         """Изменение состояния игры и цвета команды"""
@@ -55,12 +56,14 @@ class Strategy:
                     wp.WType.S_STOP,
                 )
             )
-        
+        #print(231)
         self.attacker(field, waypoints, self.idx1)
-        self.goalkeeper(field, waypoints)
+        self.goalkeeper(field, waypoints, )
 
         return waypoints
 
+    
+    
     def attacker(self, field: fld.Field, waypoints: list[wp.Waypoint], idx: int) -> None:
         ##########################coordinates_our##########################
         robot_pos_gk = field.allies[self.gk_idx].get_pos()
@@ -68,125 +71,211 @@ class Strategy:
         robot_pos2 = field.allies[self.idx2].get_pos()
 
         ##########################coordinates_ali##########################
-        robot_pos_gk_enem = field.enemies[self.gk_idx_ali].get_pos()
-        robot_pos1_enem = field.enemies[self.idx_ali1].get_pos()
-        robot_pos2_enem = field.enemies[self.idx_ali2].get_pos()
+        robot_pos_gk_enem = field.enemies[self.gk_idx_enem].get_pos()
+        robot_pos1_enem = field.enemies[self.idx_enem1].get_pos()
+        robot_pos2_enem = field.enemies[self.idx_enem2].get_pos()
 
         ##########################ball##########################
         ball = field.ball.get_pos()
 
         ##########################attacker##########################
-        g_up_xy = field.enemy_goal.up - field.enemy_goal.eye_up * 30    #определяется угол ворот противоположный от враторя
-        g_down_xy = field.enemy_goal.down - field.enemy_goal.eye_up * 30
+        g_up_xy_attacker = field.enemy_goal.up - field.enemy_goal.eye_up * 0    #определяется угол ворот противоположный от враторя
+        g_down_xy_attacker = field.enemy_goal.down + field.enemy_goal.eye_up * 70
 
-        up = (g_up_xy - robot_pos_gk_enem).mag()
-        down = (g_down_xy + robot_pos_gk_enem).mag()
+        up_attacker = (g_up_xy_attacker - robot_pos_gk_enem).mag()
+        down_attacker = (robot_pos_gk_enem + g_down_xy_attacker).mag()
 
-        mag1 = (robot_pos_gk - robot_pos1_enem).mag()
-        mag2 = (robot_pos_gk - robot_pos2_enem).mag()
 
-        if up > down:
-            pos = g_up_xy
+        distance1 = (robot_pos_gk - robot_pos1_enem).mag()
+        distamce2 = (robot_pos_gk - robot_pos2_enem).mag()
+
+        attacker_position = ball
+
+        if up_attacker > down_attacker:
+            position_attacker_gate = g_up_xy_attacker
         else:
-            pos = g_down_xy     #закончилось
-    
-        if mag1 < mag2:            #смотрится кто дальше находится от враторя  
-            #print(robot_pos2_enem.x, robot_pos_gk_enem.x)
-            if robot_pos2_enem.x > robot_pos_gk_enem.x:         #смотрится на то находится ли робот относительно мяча с право или слева
-                angl_atacker = pos
-                field.strategy_image.draw_line(robot_pos1, pos, (255, 0, 0), 5)
-               # print(2)
+            position_attacker_gate = g_down_xy_attacker     #закончилось
+
+        if distance1 < distamce2:            #смотрится кто дальше находится от враторя  
+            if robot_pos2_enem.y > robot_pos1.y:         #находится ли робот относительно мяча с право или слева    
+                angle_atacker = position_attacker_gate - robot_pos1
+                field.strategy_image.draw_line(robot_pos1, position_attacker_gate, (255, 0, 0), 5)
+
             else:
                 mag = robot_pos2_enem       #бъёт между роботов в противоположный угол
-                vec_rob = ((robot_pos_gk_enem + robot_pos2_enem) / 2) - robot_pos1
-                angl_atacker = (pos - vec_rob) - robot_pos1
+                vector_robot = ((robot_pos_gk_enem + robot_pos2_enem) / 2) - robot_pos1
+                angle_atacker = (position_attacker_gate - vector_robot) - robot_pos1
                 field.strategy_image.draw_line(robot_pos2_enem, robot_pos_gk_enem, (255, 0, 0), 5)
-               # print(1)
+                field.strategy_image.draw_line(robot_pos1, position_attacker_gate, (0, 0, 255), 5)
+
         else:
-            #print("Heelo NOO")
-            if robot_pos1_enem.x > robot_pos_gk_enem.x:     #смотрится на то находится ли робот относительно мяча с право или слева 
-                angl_atacker = pos
-                field.strategy_image.draw_line(robot_pos1, pos, (255, 0, 0), 5)
-                #print(2)
+            if robot_pos1_enem.y > robot_pos1.y:     #находится ли робот относительно мяча с право или слева 
+                angle_atacker = position_attacker_gate - robot_pos1
+                field.strategy_image.draw_line(robot_pos1, position_attacker_gate, (0, 0, 255), 5)
+
             else:
                 mag = robot_pos1_enem       #бъёт между роботов в противоположный угол
-                vec_rob = ((robot_pos_gk_enem + robot_pos1_enem) / 2) - robot_pos1
-                angl_atacker = (pos - vec_rob) - robot_pos1
-                field.strategy_image.draw_line(robot_pos1_enem, robot_pos_gk_enem, (255, 0, 0), 5)
+                vector_robot = ((robot_pos_gk_enem + robot_pos1_enem) / 2) - robot_pos1
+                angle_atacker = (position_attacker_gate - vector_robot) - robot_pos1
+                field.strategy_image.draw_line(robot_pos1_enem, robot_pos_gk_enem, (0, 0, 255), 5)
+                field.strategy_image.draw_line(robot_pos1, position_attacker_gate, (255, 0, 0), 5)
                 #print(1)
 
-        #field.strategy_image.draw_line(robot_pos1,robot_pos2,(255,0,0), 5)
-
-        #vec_rob = ((robot_pos_gk_ali + mag) / 2) - robot_pos1
-#
-        #angl_atacker = (pos - vec_rob) - robot_pos1
-        angl = robot_pos1 - pos
-        pos_gool = field.ally_goal.center
-
-        vec_ball = ball - robot_pos1
+        #реализация паса
 
         #if vec_ball.mag() > 1000:
         #    waypoints[self.idx1] = wp.Waypoint(ball, vec_ball.arg(), wp.WType.S_ENDPOINT)
         #else:
         #waypoints[self.idx1] = wp.Waypoint(ball, angl_atacker.arg(), wp.WType.S_BALL_KICK)
-        angle = field.allies[self.idx1].get_angle()
-        print(angle)        # Pas
+
         # if self.is_ball_moves_to_point(robot_pos1, field.ball):
         #    waypoints[self.idx1] = wp.Waypoint(robot_pos1, (vec_ball).arg(), wp.WType.S_ENDPOINT)
         # else:
-        #    waypoints[self.idx1] = wp.Waypoint(robot_pos1, (vec_ball).arg(), wp.WType.S_ENDPOINT)l
+        #    waypoints[self.idx1] = wp.Waypoint(robot_pos1, (vec_ball).arg(), wp.WType.S_ENDPOINT)
 
-        ##########################protection##########################   
-        #angle_protection = robot_pos1 - robot_pos2         #пас
-        #if ball.y > 0:
-        #    waypoints[self.idx2] = wp.Waypoint(ball, (angle_protection).arg(), wp.WType.S_BALL_KICK)
-        #else:
-        #    waypoints[self.idx2] = wp.Waypoint(angle, (field.enemy_goal.center).arg(), wp.WType.S_BALL_KICK)
-        pos_protection = ball
-        pos_attacker = ball
+        ###################protection###################
+
+        # Определяем, какой робот ближе к мячу
+        ###################защита###################
+        ball_in_robot = None
+        angle_protection = ball
+        protection_position = ball
+        
+        dist_ball_robot1 = (robot_pos1_enem - ball).mag()
+        dist_ball_robot2 = (robot_pos2_enem - ball).mag()
+ 
+
+        # Используем позицию ближайшего робота
+        if dist_ball_robot1 < dist_ball_robot2:
+            dist_ball = robot_pos1_enem
+        else:
+            dist_ball = robot_pos2_enem
 
         if robot_pos1_enem == ball:
-            ball_robot = robot_pos1_enem
-        else:
-            ball_robot = ball
-        if robot_pos2_enem == ball:
-            ball_robot = robot_pos2_enem
-            
-        if ball_robot.y > 0:
-            pos_attacker = aux.Point(robot_pos1_enem.x, robot_pos1_enem.y - 100)
-        else:
-            pos_protection = aux.Point(robot_pos1_enem.x - 100, robot_pos1_enem.y)
-        
-        waypoints[self.idx1] = wp.Waypoint(pos_attacker, angl_atacker.arg(), wp.WType.S_BALL_KICK)
-        waypoints[self.idx2] = wp.Waypoint(pos_protection, (ball).arg(), wp.WType.S_ENDPOINT)
-        return waypoints
-    def goalkeeper(self, field: fld.Field, waypoints: list[wp.Waypoint]) -> None:
-        """##########################coordinates_our##########################
-        robot_pos_gk = field.allies[self.gk_idx].get_pos()
+            ball_in_robot = robot_pos1_enem
+        elif robot_pos2_enem == ball:
+            ball_in_robot = robot_pos2_enem
 
-        ##########################ball##########################
+
+
+        g_up_xy_protection = field.ally_goal.up - field.ally_goal.eye_forw * 30    #определяется угол ворот противоположный от враторя
+        g_down_xy_protection = field.ally_goal.down + field.ally_goal.eye_forw * 30
+
+        up_protection = (g_up_xy_protection - robot_pos_gk).mag()
+        down_protection = (robot_pos_gk - g_down_xy_protection).mag()
+
+        if up_protection < down_protection:
+            protection_position_gate = g_up_xy_protection
+        else:
+            protection_position_gate = g_down_xy_protection
+
+            
+        #if ball_in_robot is not None and ball_in_robot.x > 0:
+        #    protection_position = aux.Point(pos_ally.x, (field.ally_goal.center).y + 500)
+        #    angl_protection = ball_in_robot 
+
+        if dist_ball.x < 0:
+            #protection_position = aux.closest_point_on_line(pos_ally, dist_ball, robot_pos2)
+            protection_position = aux.Point(dist_ball.x - 300, dist_ball.y)
+            angle_protection = (dist_ball - robot_pos2)
+        elif dist_ball.x > 0:
+            protection_position = aux.closest_point_on_line(protection_position_gate, dist_ball, robot_pos2)
+            angle_protection = (dist_ball - robot_pos2)
+
+        elif robot_pos1.x < 0 and robot_pos2.x < 0:
+            oblique_robot1 = aux.get_tangent_points(robot_pos1, ball, const.ROBOT_R)
+            oblique_robot2 = aux.get_tangent_points(robot_pos2, ball, const.ROBOT_R)
+            if len(oblique_robot1) >= 2 and len(oblique_robot2) >= 2:
+
+                field.strategy_image.draw_line(oblique_robot1[0], dist_ball, (255, 0, 0), 5)
+                field.strategy_image.draw_line(oblique_robot1[1], dist_ball, (255, 0, 0), 5)
+
+                field.strategy_image.draw_dot(oblique_robot1[0], (255, 0, 0), 50)
+                field.strategy_image.draw_dot(oblique_robot1[1], (255, 0, 0), 50)
+
+                field.strategy_image.draw_line(oblique_robot2[0], dist_ball, (255, 0, 0), 5)
+                field.strategy_image.draw_line(oblique_robot2[1], dist_ball, (255, 0, 0), 5)
+
+                field.strategy_image.draw_dot(oblique_robot2[0], (255, 0, 0), 50)
+                field.strategy_image.draw_dot(oblique_robot2[1], (255, 0, 0), 50)
+                angle_protection = dist_ball
+
+            if oblique_robot1[0].distance_to(oblique_robot2[0]) < oblique_robot1[0].distance_to(oblique_robot2[1]):
+                protection_position1 = oblique_robot1[1]
+                protection_position2 = oblique_robot2[0]
+            else:
+                protection_position1 = oblique_robot1[0]
+                protection_position2 = oblique_robot2[1]
+
+
+            protection_position_oblique1 = aux.closest_point_on_line(protection_position_gate, robot_pos2_enem, protection_position1)
+            protection_position_oblique2 = aux.closest_point_on_line(protection_position_gate, robot_pos2_enem, protection_position2)
+
+            attacker_position = aux.Point(protection_position1.x - 100, protection_position_oblique1.y )
+            protection_position = aux.Point(protection_position2.x - 100, protection_position_oblique2.y )
+
+            # Установите ориентации роботов, чтобы они были направлены на мяч
+            angle_atacker = (robot_pos2_enem - protection_position1)
+            angle_protection = (robot_pos2_enem - protection_position2)
+
+
+        field.strategy_image.draw_line(dist_ball, protection_position_gate, (0, 0, 255), 5)  
+
+        waypoints[self.idx1] = wp.Waypoint(attacker_position, angle_atacker.arg(), wp.WType.S_BALL_KICK)
+        waypoints[self.idx2] = wp.Waypoint(protection_position, angle_protection.arg(), wp.WType.S_ENDPOINT)
+        return waypoints
+
+
+    def goalkeeper(self, field: fld.Field, waypoints: list[wp.Waypoint]) -> None:
+        # Получаем позиции союзных роботов
+        robot_pos_gk = field.allies[self.gk_idx].get_pos()
+        robot_pos1 = field.allies[self.idx1].get_pos()
+        robot_pos2 = field.allies[self.idx2].get_pos()
+    
+        # Получаем позиции вражеских роботов
+        robot_pos_gk_enem = field.enemies[self.gk_idx_enem].get_pos()
+        robot_pos1_enem = field.enemies[self.idx_enem1].get_pos()
+        robot_pos2_enem = field.enemies[self.idx_enem2].get_pos()
+    
+        # Получаем позицию мяча
         ball = field.ball.get_pos()
 
-        # Define the goal area (assuming it's a rectangle or polygon)
-        goal_area = field.ally_goal.hull
 
-        # Calculate the point on the goal line that is closest to the ball
-        pos_goal = aux.closest_point_on_line(field.ally_goal.left_post, field.ally_goal.right_post, ball)
+        g_up_xy_goal = field.enemy_goal.up - field.enemy_goal.eye_up * 30    #определяется угол ворот противоположный от враторя
+        g_down_xy_goal = field.enemy_goal.down + field.enemy_goal.eye_up * 30
 
-        # Ensure the goalkeeper stays within the goal area
-        if not aux.is_point_inside_poly(pos_goal, goal_area):
-            pos_goal = field.ally_goal.center
+        up_goal = (g_up_xy_goal - robot_pos_gk_enem).mag()
+        down_goal = (robot_pos_gk_enem + g_down_xy_goal).mag()
 
-        # Calculate the angle towards the ball
+        if up_goal > down_goal:
+            goal_position_gates = g_up_xy_goal
+        else:
+            goal_position_gates = g_down_xy_goal     #закончилось
+
+        angle_goal_ball = (goal_position_gates - robot_pos_gk).arg()
+
+    
+        # Определяем позицию для вратаря
+        if field.ball_start_point is not None:
+            goal_position = aux.closest_point_on_line(field.ball_start_point, ball, robot_pos_gk, "R")
+        else:
+            goal_position = field.ally_goal.center
+
+        position_goal = aux.is_point_inside_poly(goal_position, field.ally_goal.hull)
+
+        if position_goal == False:
+            goal_position = field.ally_goal.center
+
         angle_goalkeeper = (ball - robot_pos_gk).arg()
+    
+        waypoints[self.gk_idx] = wp.Waypoint(goal_position, angle_goal_ball, wp.WType.S_ENDPOINT)
+    
+        if field.is_ball_stop_near_goal():
+            waypoints[self.gk_idx] = wp.Waypoint(ball, angle_goal_ball, wp.WType.S_BALL_KICK)
+    
+        if field.is_ball_in(field.allies[self.gk_idx]):
+            waypoints[self.gk_idx] = wp.Waypoint(goal_position, angle_goal_ball, wp.WType.S_BALL_KICK)
 
-        # Set the waypoint for the goalkeeper to follow the ball
-        waypoints[self.gk_idx] = wp.Waypoint(pos_goal, angle_goalkeeper, wp.WType.S_ENDPOINT)
-
-        # If the ball is within the goal area, move the goalkeeper to the ball and kick it away
-        if aux.is_point_inside_poly(ball, goal_area):
-            waypoints[self.gk_idx] = wp.Waypoint(ball, angle_goalkeeper, wp.WType.S_BALL_KICK)
-            print("Kicking the ball away")
-
-        return waypoints"""
-
+        #waypoints[self.gk_idx] = wp.Waypoint(goal_position, angle_goalkeeper, wp.WType.S_BALL_KICK)
+    
+        return None

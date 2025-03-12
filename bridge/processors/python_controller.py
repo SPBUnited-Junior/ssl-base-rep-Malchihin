@@ -192,6 +192,7 @@ class SSLController(BaseProcessor):
 
         self.control_assign()
         self.draw_image()
+        
     def draw_image(self) -> None:
         """Send commands to drawer processor"""
         full_image = Image()
