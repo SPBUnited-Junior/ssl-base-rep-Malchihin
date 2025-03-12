@@ -25,6 +25,7 @@ class Strategy:
         self.gk_idx = 0
         self.idx1 = 1
         self.idx2 = 2
+        
         # Индексы роботов соперника
         self.gk_idx_enem = 0
         self.idx_enem1 = 1
@@ -79,8 +80,8 @@ class Strategy:
         ball = field.ball.get_pos()
 
         ##########################attacker##########################
-        g_up_xy_attacker = field.enemy_goal.up - field.enemy_goal.eye_up * 0    #определяется угол ворот противоположный от враторя
-        g_down_xy_attacker = field.enemy_goal.down + field.enemy_goal.eye_up * 70
+        g_up_xy_attacker = field.enemy_goal.up - field.enemy_goal.eye_up * 30    #определяется угол ворот противоположный от враторя
+        g_down_xy_attacker = field.enemy_goal.down + field.enemy_goal.eye_up * 30
 
         up_attacker = (g_up_xy_attacker - robot_pos_gk_enem).mag()
         down_attacker = (robot_pos_gk_enem + g_down_xy_attacker).mag()
@@ -97,7 +98,7 @@ class Strategy:
             position_attacker_gate = g_down_xy_attacker     #закончилось
 
         if distance1 < distamce2:            #смотрится кто дальше находится от враторя  
-            if robot_pos2_enem.y > robot_pos1.y:         #находится ли робот относительно мяча с право или слева    
+            if robot_pos2_enem.x > robot_pos1.x:         #находится ли робот относительно мяча с право или слева    
                 angle_atacker = position_attacker_gate - robot_pos1
                 field.strategy_image.draw_line(robot_pos1, position_attacker_gate, (255, 0, 0), 5)
 
@@ -105,13 +106,13 @@ class Strategy:
                 mag = robot_pos2_enem       #бъёт между роботов в противоположный угол
                 vector_robot = ((robot_pos_gk_enem + robot_pos2_enem) / 2) - robot_pos1
                 angle_atacker = (position_attacker_gate - vector_robot) - robot_pos1
-                field.strategy_image.draw_line(robot_pos2_enem, robot_pos_gk_enem, (255, 0, 0), 5)
-                field.strategy_image.draw_line(robot_pos1, position_attacker_gate, (0, 0, 255), 5)
+                field.strategy_image.draw_line(robot_pos2_enem, robot_pos_gk_enem, (0, 0, 255), 5)
+                field.strategy_image.draw_line(robot_pos1, position_attacker_gate, (255, 0, 0), 5)
 
         else:
             if robot_pos1_enem.y > robot_pos1.y:     #находится ли робот относительно мяча с право или слева 
                 angle_atacker = position_attacker_gate - robot_pos1
-                field.strategy_image.draw_line(robot_pos1, position_attacker_gate, (0, 0, 255), 5)
+                field.strategy_image.draw_line(robot_pos1, position_attacker_gate, (255, 0, 0), 5)
 
             else:
                 mag = robot_pos1_enem       #бъёт между роботов в противоположный угол
@@ -119,7 +120,6 @@ class Strategy:
                 angle_atacker = (position_attacker_gate - vector_robot) - robot_pos1
                 field.strategy_image.draw_line(robot_pos1_enem, robot_pos_gk_enem, (0, 0, 255), 5)
                 field.strategy_image.draw_line(robot_pos1, position_attacker_gate, (255, 0, 0), 5)
-                #print(1)
 
         #реализация паса
 
